@@ -1,0 +1,41 @@
+{% extends "layout/base.html" %}
+{% load static %}
+
+{% block content %}
+
+<div class="container w-100 d-flex align-items-center flex-column justify-content-center">
+    <div class="row w-100 justify-content-center mt-3">
+
+        <div class="col col-lg-6">
+            <h2 class="mb-5">Create You Playlist</h2>
+            {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{message.tag}} alert-dismissible fade show" role="alert">
+                {{message}}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+            {% endif %}
+            <form id="create-blog-form" method="POST" enctype='multipart/form-data' class="mb-5">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="title" class="form-label">Name</label>
+                    <input id="title" type="text" class="form-control" id="title" name="name">
+                </div>
+                <div class="mb-3">
+                    <label for="content" class="form-label">Description</label>
+                    <textarea type="text" class="form-control" id="content" name="description"></textarea>
+                </div>
+                <div class="mb-3">
+                    <input id="file" class="form-control" type="file" name="image">
+                </div>
+                <div class="mt-4 d-flex justify-content-end">
+                    <button type="submit" class="btn btn-success">Create</button>
+                    <a href="{% url 'userPlaylist' %}" class="btn btn-secondary ms-2">Back</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
