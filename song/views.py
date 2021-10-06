@@ -8,6 +8,10 @@ from django.core.paginator import Paginator, EmptyPage, InvalidPage
 
 def index(request, genre=None):
     playlists = Playlist.objects.filter(user_id=request.user.id).all()
+    # all_playlist = Playlist.objects.get(id=19)
+    # print(all_playlist.songs.all())
+    # all_songs=  Song.objects.all()
+    # print(all_songs.playlist_set.all())
     if genre != None:
         genres = get_object_or_404(Genre, name=genre)
 
@@ -21,12 +25,9 @@ def index(request, genre=None):
     else:
         if request.method == "POST":
             search = request.POST["search"]
-            print(search)
             songs = Song.objects.filter(name__contains=search)
-            print(songs)
         else:
             songs = Song.objects.all()
-            print(songs)
 
         return render(request, 'song/index.html', {'songs': songs, "playlists": playlists})
 
@@ -49,7 +50,7 @@ def createPlaylist(request):
             playlist.save()
             return redirect("playlistDetail", playlist.id)
         else:
-            messages.info(
+            messages.warning(
                 request, "Invalid image type, please type again")
             render(request, 'playlist/create.html')
 
@@ -85,7 +86,7 @@ def updatePlaylist(request, playlist_id):
                 playlist.save()
                 return redirect("playlistDetail", playlist.id)
             else:
-                messages.info(
+                messages.warning(
                     request, "Invalid image type, please type again")
                 return redirect("updatePlaylist", playlist_id)
         else:
@@ -115,8 +116,13 @@ def addSongToPlaylist(request, playlist_id=None, song_id=None):
     song = Song.objects.get(id=song_id)
 
     if playlist_id is not None:
-        song.playlist_set.add(playlist_id)
-        return redirect("playlistDetail", playlist_id)
+        if not song.playlist_set.filter(id=playlist_id):
+            song.playlist_set.add(playlist_id)
+            return redirect("playlistDetail", playlist_id)
+
+        else:
+            messages.warning(request, "This song already exist in your playlist")
+
 
     return render(request, "playlist/add-song.html", {"playlists": playlists, "song": song})
 
