@@ -7,11 +7,6 @@ from django.core.paginator import Paginator, EmptyPage, InvalidPage
 
 
 def index(request, genre=None):
-    playlists = Playlist.objects.filter(user_id=request.user.id).all()
-    # all_playlist = Playlist.objects.get(id=19)
-    # print(all_playlist.songs.all())
-    # all_songs=  Song.objects.all()
-    # print(all_songs.playlist_set.all())
     if genre != None:
         genres = get_object_or_404(Genre, name=genre)
 
@@ -21,7 +16,6 @@ def index(request, genre=None):
         else:
             songs = genres.song_set.all()
 
-        return render(request, 'song/index.html', {'songs': songs, "playlists": playlists})
     else:
         if request.method == "POST":
             search = request.POST["search"]
@@ -29,7 +23,7 @@ def index(request, genre=None):
         else:
             songs = Song.objects.all()
 
-        return render(request, 'song/index.html', {'songs': songs, "playlists": playlists})
+    return render(request, 'song/index.html', {'songs': songs})
 
 
 def playlistDetail(request, playlist_id):
@@ -40,19 +34,22 @@ def playlistDetail(request, playlist_id):
 
 def createPlaylist(request):
     if request.method == "POST":
-        imageFile = request.FILES["image"]
-        name = request.POST["name"]
-        description = request.POST["description"]
-
-        if str(imageFile.content_type).startswith("image"):
-            playlist = Playlist(
-                name=name, desc=description, image=imageFile, user_id=request.user.id)
-            playlist.save()
-            return redirect("playlistDetail", playlist.id)
-        else:
+        if not request.FILES:
             messages.warning(
-                request, "Invalid image type, please type again")
-            render(request, 'playlist/create.html')
+                request, "Please choose an image")
+        else:
+            imageFile = request.FILES["image"]
+            name = request.POST["name"]
+            description = request.POST["description"]
+            if str(imageFile.content_type).startswith("image"):
+                playlist = Playlist(
+                    name=name, desc=description, image=imageFile, user_id=request.user.id)
+                playlist.save()
+                return redirect("playlistDetail", playlist.id)
+            else:
+                messages.warning(
+                    request, "Invalid image type, please type again")
+                render(request, 'playlist/create.html')
 
         # another way
         # if str(imageFile.content_type).startswith("image"):
