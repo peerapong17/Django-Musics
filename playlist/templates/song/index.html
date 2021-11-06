@@ -1,0 +1,143 @@
+{% extends 'layout/base.html' %}
+
+{% block content %}
+
+    <div class="container">
+        <div class="row d-flex justify-content-center mt-3">
+            <div class="col-6">
+                <div class="d-flex justify-content-between mb-4">
+                    <h2 align="left">All Songs</h2>
+                    <div class="d-flex justify-content-end">
+                        <div class="btn-group ml-2">
+                            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"
+                                    aria-haspopup="true" aria-expanded="false">
+                                Date
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-right">
+                                <a class="dropdown-item" href="#">Date</a>
+                                <a class="dropdown-item" href="#">Name</a>
+                                <a class="dropdown-item" href="#">Singer</a>
+                                <a class="dropdown-item" href="#">Genre</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% if songs %}
+                    {% for song in songs %}
+                        <div class="card mb-3">
+                            <div class="card-body d-flex align-items-center py-1 px-2">
+                                <img alt="{{ song.id }}" src="{{ song.image.url }}" width="80" height="80"
+                                     style="border-radius:5px;"/>
+                                <div class="d-flex flex-column w-100 ms-3">
+                                    <div class="d-flex justify-content-between ">
+                                        <h5>{{ song.name }}</h5>
+                                        <div class="dropdown">
+                                            <a class="btn btn-primary dropdown-toggle" href="#" role="button"
+                                               id="dropdownMenuLink"
+                                               data-bs-toggle="dropdown" aria-expanded="false">
+                                            </a>
+                                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                                                {#                                                <li><a href="{% url 'addSong' song.id %}" class="dropdown-item">Save to#}
+                                                {#                                                    playlist</a>#}
+                                                {#                                                </li>#}
+                                                <li><a class="dropdown-item" data-bs-toggle="modal"
+                                                       data-bs-target="#modal" onclick="showModal({{ song.id }})">
+                                                    Save to
+                                                    playlist
+                                                </a>
+                                                </li>
+
+                                                <li><a class="dropdown-item" href="#">Save to favorite song</a></li>
+                                                <li><a class="dropdown-item" href="#">Rate</a></li>
+                                            </ul>
+
+                                        </div>
+                                    </div>
+                                    <div class="text-muted">{{ song.singer }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <h2>No songs in this category...</h2>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Your Playlist</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    {% for user_playlist in user_playlists %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="{{ user_playlist.id }}"
+                                   id="{{ user_playlist.id }}" name="selectedPlaylists">
+                            <label class="form-check-label" for="{{ user_playlist.id }}">
+                                {{ user_playlist.name }}
+                            </label>
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" id="button" class="btn btn-primary" data-bs-dismiss="modal">Save changes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        console.log("ready")
+        const button = document.getElementById("button");
+        const selectedPlaylists = document.getElementsByName("selectedPlaylists")
+        const playlistCheckBox = document.getElementsByClassName("form-check")
+        let songId = 0
+
+
+        function showModal(id) {
+            songId = id
+            console.log(selectedPlaylists)
+            fetch("/playlists/add-song/" + songId, {
+                method: "GET",
+            })
+                .then((res) => res.json())
+                .then((res) => {
+                    if (res.length != 0) {
+                        for (let i = 0; i < selectedPlaylists.length; i++) {
+                            for (let u = 0; u < res.length; u++){
+                                if (selectedPlaylists[i].id == res[u].pk) {
+                                    selectedPlaylists[i].checked = true
+                                }
+                            }
+                        }
+                    }
+                })
+        }
+
+        button.addEventListener("click", () => {
+            let dataList = []
+            for (let playlist of selectedPlaylists) {
+                if (playlist.checked === true) {
+                    dataList.push(playlist.value)
+                }
+            }
+
+            const fd = new FormData();
+            fd.append("selectedPlaylists", dataList);
+
+            fetch("/playlists/add-song/" + songId, {
+                method: "POST",
+                body: fd,
+                headers: {'X-CSRFToken': '{{ csrf_token }}'}
+            })
+        })
+    </script>
+
+{% endblock content %}

@@ -4,16 +4,14 @@ from django.shortcuts import redirect
 from django.urls import path, include
 from django.conf.urls.static import static
 
-    
-
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path("",lambda request: redirect('song/', permanent=False)),
-    path('song/',include("song.urls")),
-    path('auth/',include("auth.urls")),
+    path("", lambda request: redirect('songs/', permanent=False)),
+    path('songs/', include("song.urls")),
+    path('playlists/', include("playlist.urls")),
+    path('auth/', include("auth.urls")),
 ]
 
-if settings.DEBUG :
-    urlpatterns+=static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
-    urlpatterns+=static(settings.STATIC_URL,document_root=settings.STATIC_ROOT)
-
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

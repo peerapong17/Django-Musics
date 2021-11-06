@@ -17,7 +17,7 @@ def signUpUser(request):
             messages.success(request, "Create account success")
             return redirect('signInUser')
         else:
-            messages.success(request, "Create account fail")
+            messages.error(request, "Create account fail")
     return render(request, "auth/sign-up.html", {'form': form})
 
 
@@ -30,7 +30,7 @@ def signInUser(request):
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-                return redirect('home')
+                return redirect('song_list')
             else:
                 return redirect('signUp')
     else:

@@ -12,7 +12,7 @@ class Genre(models.Model):
         return self.name
 
     class Meta:
-        db_table = "genre"
+        db_table = "genres"
         ordering = ['name']
         # verbose_name='หมวดหมู่สินค้า'
         # verbose_name_plural="ข้อมูลประเภทสินค้า"
@@ -33,7 +33,7 @@ class Song(models.Model):
         return self.name
 
     class Meta:
-        db_table = 'song'
+        db_table = "songs"
         ordering = ['-created_at']
 
     # def get_songs_by_genre(self):
@@ -50,7 +50,7 @@ class Playlist(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        db_table = 'playlist'
+        db_table = "playlists"
         ordering = ['-created_at']
 
     def length_of_songs(self):

@@ -1,4 +1,4 @@
-from song.models import Genre
+from playlist.models import Genre
 
 
 def genres(request):
