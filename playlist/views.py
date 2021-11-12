@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.core import serializers as core_serializers
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 
 from playlist.models import Playlist, Song
 from django.core.files.storage import FileSystemStorage
@@ -96,6 +96,7 @@ def add_song_to_playlist(request, song_id=None):
     json_decoded = core_serializers.serialize('json', user_playlists)
 
     if request.method == "POST":
+        user_playlists = [playlist.id for playlist in song.playlist_set.filter(user_id=request.user.id).all()]
         if request.POST['selectedPlaylists'] is not "":
             selected_playlist_checkbox = request.POST['selectedPlaylists'].split(',')
             selected_playlists = [int(item) for item in selected_playlist_checkbox]
@@ -112,20 +113,22 @@ def add_song_to_playlist(request, song_id=None):
                 else:
                     # song = Song.objects.get(id=song_id)
                     song.playlist_set.add(selected_playlist)
+                    # for item in user_playlists:
+                    #     if item not in selected_playlists:
+                    #         song.playlist_set.remove(item)
         else:
             for item in user_playlists:
                 song.playlist_set.remove(item)
 
-        return redirect("song_list")
-
     return HttpResponse(json_decoded, content_type="application/json")
-    # return JsonResponse(json_decoded, safe=False)
 
 
 def delete_song_from_playlist(request, playlist_id=None, song_id=None):
     playlist = Playlist.objects.get(id=playlist_id)
     playlist.songs.remove(song_id)
-    return redirect("playlistDetail", playlist_id)
+    return JsonResponse("Song was deleted from your playlist", safe=False)
+
+    # return redirect("playlistDetail", playlist_id)
 
 # def searchSong(request):
 #     products = Product.objects.filter(name__contains=request.GET['title'])

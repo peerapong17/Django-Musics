@@ -1,7 +1,8 @@
 {% extends 'layout/base.html' %}
 
-{% block content %}
+{% load static %}
 
+{% block content %}
     <div class="container">
         <div class="row d-flex justify-content-center mt-3">
             <div class="col-6">
@@ -37,14 +38,11 @@
                                                data-bs-toggle="dropdown" aria-expanded="false">
                                             </a>
                                             <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                                                {#                                                <li><a href="{% url 'addSong' song.id %}" class="dropdown-item">Save to#}
-                                                {#                                                    playlist</a>#}
-                                                {#                                                </li>#}
-                                                <li><a class="dropdown-item" data-bs-toggle="modal"
+                                                <li>
+                                                    <a class="dropdown-item" data-bs-toggle="modal"
                                                        data-bs-target="#modal" onclick="showModal({{ song.id }})">
-                                                    Save to
-                                                    playlist
-                                                </a>
+                                                        Save to playlist
+                                                    </a>
                                                 </li>
 
                                                 <li><a class="dropdown-item" href="#">Save to favorite song</a></li>
@@ -93,51 +91,5 @@
         </div>
     </div>
 
-    <script>
-        console.log("ready")
-        const button = document.getElementById("button");
-        const selectedPlaylists = document.getElementsByName("selectedPlaylists")
-        const playlistCheckBox = document.getElementsByClassName("form-check")
-        let songId = 0
-
-
-        function showModal(id) {
-            songId = id
-            console.log(selectedPlaylists)
-            fetch("/playlists/add-song/" + songId, {
-                method: "GET",
-            })
-                .then((res) => res.json())
-                .then((res) => {
-                    if (res.length != 0) {
-                        for (let i = 0; i < selectedPlaylists.length; i++) {
-                            for (let u = 0; u < res.length; u++){
-                                if (selectedPlaylists[i].id == res[u].pk) {
-                                    selectedPlaylists[i].checked = true
-                                }
-                            }
-                        }
-                    }
-                })
-        }
-
-        button.addEventListener("click", () => {
-            let dataList = []
-            for (let playlist of selectedPlaylists) {
-                if (playlist.checked === true) {
-                    dataList.push(playlist.value)
-                }
-            }
-
-            const fd = new FormData();
-            fd.append("selectedPlaylists", dataList);
-
-            fetch("/playlists/add-song/" + songId, {
-                method: "POST",
-                body: fd,
-                headers: {'X-CSRFToken': '{{ csrf_token }}'}
-            })
-        })
-    </script>
-
+    <script src="{% static 'scripts/song/index.js' %}"></script>
 {% endblock content %}
